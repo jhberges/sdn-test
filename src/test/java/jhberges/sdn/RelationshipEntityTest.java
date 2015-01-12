@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.data.neo4j.repository.GraphRepositoryFactory;
-import org.springframework.data.neo4j.rest.SpringCypherRestGraphDatabase;
+import org.springframework.data.neo4j.rest.SpringRestGraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 
 public class RelationshipEntityTest {
@@ -24,7 +24,7 @@ public class RelationshipEntityTest {
 	@Before
 	public void before() {
 		// Rest-remoted DB doesn't work (save doesn't persist property on RelationshipEntity)
-		db = new SpringCypherRestGraphDatabase("http://localhost:7474/db/data");
+		db = new SpringRestGraphDatabase("http://localhost:7474/db/data");
 		
 		// Works fine with the embedded DB: (except from "assertNull" below which fails due to properties having been saved...) 
 //		db = new GraphDatabaseFactory().newEmbeddedDatabase("target/dbs" + System.currentTimeMillis());
@@ -91,7 +91,7 @@ public class RelationshipEntityTest {
 		
 		rel.setDiscriminator(obj.getRelations().iterator().next().getDiscriminator());
 		Relation updatedRel = template.save(rel);
-		
+		System.err.println("ID = " + rel.getGraphId());
 		System.err.println("To-Save Relation has discriminator: " + rel.getDiscriminator());
 		System.err.println("Updated Relation has discriminator: " + updatedRel.getDiscriminator());
 		

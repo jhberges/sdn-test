@@ -21,6 +21,11 @@
   		<url>http://repo.spring.io/milestone</url>
   	</repository>
   	<repository>
+  		<id>spring-snapshots</id>
+  		<snapshots><enabled>true</enabled></snapshots>
+  		<url>http://repo.spring.io/snapshot</url>
+  	</repository>
+  	<repository>
   		<id>neo4j</id>
   		<url>http://m2.neo4j.org/releases</url>
   	</repository>
@@ -33,9 +38,15 @@
   		<scope>test</scope>
   	</dependency>
   	<dependency>
+  	<!--
+  	3.2.1.RELEASE works
+  	3.3.0.XXX not so much ;-) 
+  	 -->
   		<groupId>org.springframework.data</groupId>
   		<artifactId>spring-data-neo4j-rest</artifactId>
   		<version>3.3.0.M1</version>
+<!-- <version>3.3.0.BUILD-SNAPSHOT</version> -->
+<!--   		<version>3.2.1.RELEASE</version>  -->
   	</dependency>
   	<dependency>
   		<groupId>javax.validation</groupId>
