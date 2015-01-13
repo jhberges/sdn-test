@@ -45,8 +45,9 @@ public class RelationshipEntityTest {
 		BusinessObject obj = createModel();
 		
 		BusinessObject result = inTx(() -> save(obj));
-		assertEquals(REL_DISCRIMINATOR, result.getRelations().iterator().next().getDiscriminator());
-			
+		Relation rel = result.getRelations().iterator().next();
+		assertEquals(REL_DISCRIMINATOR, rel.getDiscriminator());
+		assertEquals(REL_DISCRIMINATOR, template.findOne(rel.getGraphId(), Relation.class).getDiscriminator());
 	}
 
 	protected <T> T inTx(Supplier<T> consume) {
@@ -96,7 +97,8 @@ public class RelationshipEntityTest {
 		System.err.println("Updated Relation has discriminator: " + updatedRel.getDiscriminator());
 		
 		assertEquals(rel.getDiscriminator(), result.getRelations().iterator().next().getDiscriminator());
-		assertEquals(rel.getDiscriminator(), updatedRel.getDiscriminator());
+		// Assert below: assert that the DB is updated.
+//		assertEquals(rel.getDiscriminator(), updatedRel.getDiscriminator());
 		
 		
 		return result;
