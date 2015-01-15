@@ -107,7 +107,7 @@ public class RelationshipEntityTest {
 		
 		assertEquals(rel.getDiscriminator(), result.getRelations().iterator().next().getDiscriminator());
 		// Assert below: assert that the DB is updated.
-//		assertEquals(rel.getDiscriminator(), updatedRel.getDiscriminator());
+		assertEquals(rel.getDiscriminator(), updatedRel.getDiscriminator());
 		
 		
 		return result;
