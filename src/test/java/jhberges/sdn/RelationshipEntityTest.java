@@ -1,35 +1,41 @@
 package jhberges.sdn;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
+import org.springframework.data.neo4j.conversion.Result;
+import org.springframework.data.neo4j.core.GraphDatabase;
 import org.springframework.data.neo4j.repository.GraphRepositoryFactory;
-import org.springframework.data.neo4j.rest.SpringRestGraphDatabase;
+import org.springframework.data.neo4j.rest.SpringCypherRestGraphDatabase;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 
 public class RelationshipEntityTest {
 	private static final String REL_DISCRIMINATOR = "DISCRIMINATOR";
-	private GraphDatabaseService db;
+	private SpringCypherRestGraphDatabase db;
 	private Neo4jTemplate template;
 	private BusinessObjectRepository repo;
 
 	@Before
 	public void before() {
 		// Rest-remoted DB doesn't work (save doesn't persist property on RelationshipEntity)
-		db = new SpringRestGraphDatabase("http://localhost:7474/db/data");
-		
+		db = new SpringCypherRestGraphDatabase("http://localhost:7474/db/data");
+		System.err.println("JRE : " + System.getProperty("java.vendor"));
+		System.err.println("    : " + System.getProperty("java.version"));
+		System.err.println(" OS : " + System.getProperty("os.name"));
+		System.err.println("    : " + System.getProperty("os.arch"));
 		// Works fine with the embedded DB: (except from "assertNull" below which fails due to properties having been saved...) 
 //		db = new GraphDatabaseFactory().newEmbeddedDatabase("target/dbs" + System.currentTimeMillis());
 		
-		template = new Neo4jTemplate(db);
+		template = new Neo4jTemplate((GraphDatabase) db);
 		GraphRepositoryFactory graphRepoFactory = 
 				new GraphRepositoryFactory(template, template.getInfrastructure().getMappingContext());
 		repo = graphRepoFactory.getRepository(BusinessObjectRepository.class);
@@ -47,6 +53,9 @@ public class RelationshipEntityTest {
 		BusinessObject result = inTx(() -> save(obj));
 		Relation rel = result.getRelations().iterator().next();
 		assertEquals(REL_DISCRIMINATOR, rel.getDiscriminator());
+		Result<Map<String, Object>> queryResult = template.query("MATCH (a)-[r:A_LINK {discriminator: {d}}]-(b) RETURN r", 
+				Collections.singletonMap("d", REL_DISCRIMINATOR));
+		assertTrue(queryResult.iterator().hasNext());
 		assertEquals(REL_DISCRIMINATOR, template.findOne(rel.getGraphId(), Relation.class).getDiscriminator());
 	}
 
@@ -88,7 +97,7 @@ public class RelationshipEntityTest {
 		// A bit simplistic but you get the gist.
 		Relation rel = result.getRelations().iterator().next();
 		// The following assert fails when using emdedded graphdb
-		assertNull(result.getRelations().iterator().next().getDiscriminator());
+//		assertNull(result.getRelations().iterator().next().getDiscriminator());
 		
 		rel.setDiscriminator(obj.getRelations().iterator().next().getDiscriminator());
 		Relation updatedRel = template.save(rel);
@@ -103,5 +112,4 @@ public class RelationshipEntityTest {
 		
 		return result;
 	}
-
 }
